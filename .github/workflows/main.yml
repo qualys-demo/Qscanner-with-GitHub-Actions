@@ -18,7 +18,7 @@ jobs:
 
       # Pull the Docker image from Docker Hub
       - name: Pull Docker Image
-        run: docker pull your-docker-image:your-docker-tag
+        run: docker pull nuxeo:latest
 
       # Install Trivy for scanning the image
       - name: Install Trivy
@@ -31,7 +31,7 @@ jobs:
       # Scan the pulled Docker image with Trivy for vulnerabilities
       - name: Scan Docker Image with Trivy
         run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL your-docker-image:your-docker-tag
+          trivy image --exit-code 1 --severity HIGH,CRITICAL nuxeo:latest
         continue-on-error: true
 
       # Fail the workflow if high or critical vulnerabilities are found

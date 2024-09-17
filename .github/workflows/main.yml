@@ -24,12 +24,11 @@ jobs:
           wget https://www.qualys.com/qscanner/download/v4.1.0/download_qscanner.sh
           chmod +x download_qscanner.sh
           ./download_qscanner.sh
-          cd linux-amd64/
 
       # Scan the Docker image with Qscanner for vulnerabilities
       - name: Scan Docker Image with Qualys Qscanner
         run: |
-          ./qscanner image nuxeo:latest --pod US2 --access-token "${{ secrets.QUALYS_ACCESS_TOKEN }}"
+          ./linux-amd64/qscanner image nuxeo:latest --pod US2 --access-token "${{ secrets.QUALYS_ACCESS_TOKEN }}"
         continue-on-error: true
 
       # Fail the workflow if high or critical vulnerabilities are found

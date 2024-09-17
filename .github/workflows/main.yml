@@ -1,0 +1,45 @@
+name: Pull, Scan, and Push Docker Image
+
+on:
+  workflow_dispatch: # This allows you to trigger the workflow manually
+
+jobs:
+  docker-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Log in to Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      # Pull the Docker image from Docker Hub
+      - name: Pull Docker Image
+        run: docker pull your-docker-image:your-docker-tag
+
+      # Install Trivy for scanning the image
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.40.0/trivy_0.40.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.40.0_Linux-64bit.deb
+
+      # Scan the pulled Docker image with Trivy for vulnerabilities
+      - name: Scan Docker Image with Trivy
+        run: |
+          trivy image --exit-code 1 --severity HIGH,CRITICAL your-docker-image:your-docker-tag
+        continue-on-error: true
+
+      # Fail the workflow if high or critical vulnerabilities are found
+      - name: Check scan result
+        if: failure()
+        run: exit 1
+
+      # Push the image to Docker Hub if the scan passed
+      - name: Push Docker Image to Docker Hub
+        if: success()
+        run: docker push your-docker-image:your-docker-tag
